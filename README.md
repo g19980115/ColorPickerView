@@ -20,6 +20,7 @@
 
 ## Including in your project 
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.skydoves/colorpickerview.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.skydoves%22%20AND%20a:%22colorpickerview%22)
+[![](https://jitpack.io/v/g19980115/ColorPickerView.svg)](https://jitpack.io/#g19980115/ColorPickerView)
 
 ### Gradle 
 Add below codes to your **root** `build.gradle` file (not your module build.gradle file).
@@ -30,10 +31,10 @@ allprojects {
     }
 }
 ```
-And add a dependency code to your **module**'s `build.gradle` file.
+And add a dependency code to your **module**'s `build.gradle` file. 
 ```gradle
 dependencies {
-    implementation "com.github.skydoves:colorpickerview:2.2.4"
+    implementation 'com.github.g19980115:ColorPickerView:2.2.5'
 }
 ```
 
