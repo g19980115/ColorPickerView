@@ -33,6 +33,7 @@ import com.skydoves.colorpickerview.ColorEnvelope;
 import com.skydoves.colorpickerview.ColorPickerDialog;
 import com.skydoves.colorpickerview.ColorPickerView;
 import com.skydoves.colorpickerview.flag.BubbleFlag;
+import com.skydoves.colorpickerview.flag.CustomFlag;
 import com.skydoves.colorpickerview.flag.FlagMode;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import com.skydoves.colorpickerview.sliders.AlphaSlideBar;
@@ -57,16 +58,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onItemClick(int position, PowerMenuItem item) {
           switch (position) {
-            case 1:
+            case 0:
               palette();
               break;
-            case 2:
+            case 1:
               paletteFromGallery();
               break;
-            case 3:
+            case 2:
               selector();
               break;
-            case 4:
+            case 3:
               dialog();
               break;
           }
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    Timber.plant(new Timber.DebugTree());
+    //Timber.plant(new Timber.DebugTree());
 
     powerMenu = PowerMenuUtils.getPowerMenu(this, this, powerMenuItemClickListener);
 
@@ -160,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                 (ColorEnvelopeListener) (envelope, fromUser) -> setLayoutColor(envelope))
             .setNegativeButton(
                 getString(R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss());
-    builder.getColorPickerView().setFlagView(new BubbleFlag(this));
+    builder.getColorPickerView().setFlagView(new CustomFlag(this));
     builder.show();
   }
 
