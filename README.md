@@ -19,7 +19,6 @@
 </p>
 
 ## Including in your project 
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.skydoves/colorpickerview.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.skydoves%22%20AND%20a:%22colorpickerview%22)
 [![](https://jitpack.io/v/g19980115/ColorPickerView.svg)](https://jitpack.io/#g19980115/ColorPickerView)
 
 ### Gradle 
