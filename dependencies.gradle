@@ -14,20 +14,20 @@
 
 ext.versions = [
     minSdk           : 15,
-    compileSdk       : 31,
-    versionoCode     : 28,
-    versionName      : '2.2.4',
+    compileSdk       : 33,
+    versionoCode     : 29,
+    versionName      : '2.2.6',
 
     gradleBuildTool  : '7.1.2',
     spotlessGradle   : '6.3.0',
     dokkaGradle      : '1.4.32',
     mavenPublish     : '0.18.0',
 
-    kotlin           : '1.5.32',
-    androidxAppcompat: '1.4.0',
+    kotlin           : '1.7.0',
+    androidxAppcompat: '1.6.1',
 
     // for demo
-    googleMaterial   : '1.5.0',
+    googleMaterial   : '1.8.0',
     powermenu        : '2.2.0',
     timber           : '5.0.1'
 ]
