@@ -60,6 +60,7 @@ public class ColorPickerMaterialDialog extends AlertDialog {
         private boolean shouldAttachBrightnessSlideBar = true;
         private int bottomSpace = SizeUtils.dp2Px(getContext(), 10);
         private CharSequence brightnessTip;
+        private boolean showTileView = true;
 
         public Builder(Context context) {
             super(context);
@@ -82,6 +83,9 @@ public class ColorPickerMaterialDialog extends AlertDialog {
                     new ColorEnvelopeListener() {
                         @Override
                         public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
+                            if (showTileView) {
+                                dialogBinding.alphaTileView.setPaintColor(envelope.getColor());
+                            }
                             // no stubs
                         }
                     });
@@ -132,6 +136,11 @@ public class ColorPickerMaterialDialog extends AlertDialog {
          */
         public Builder attachBrightnessSlideBar(boolean value) {
             this.shouldAttachBrightnessSlideBar = value;
+            return this;
+        }
+
+        public Builder showTileView(boolean v) {
+            this.showTileView = v;
             return this;
         }
 
@@ -262,6 +271,10 @@ public class ColorPickerMaterialDialog extends AlertDialog {
                 } else {
                     this.dialogBinding.spaceBottom.setVisibility(View.VISIBLE);
                     this.dialogBinding.spaceBottom.getLayoutParams().height = bottomSpace;
+                }
+
+                if (!showTileView) {
+                    this.dialogBinding.alphaTileView.setVisibility(View.INVISIBLE);
                 }
             }
 

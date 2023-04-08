@@ -33,7 +33,7 @@ allprojects {
 And add a dependency code to your **module**'s `build.gradle` file. 
 ```gradle
 dependencies {
-    implementation 'com.github.g19980115:ColorPickerView:2.2.8'
+    implementation 'com.github.g19980115:ColorPickerView:2.2.9'
 }
 ```
 

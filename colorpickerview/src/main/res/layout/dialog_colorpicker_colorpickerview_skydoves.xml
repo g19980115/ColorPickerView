@@ -15,8 +15,10 @@
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:background="#000000">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,19 +26,37 @@
         android:orientation="vertical">
 
         <FrameLayout
-            android:id="@+id/colorPickerViewFrame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.skydoves.colorpickerview.ColorPickerView
-                android:id="@+id/colorPickerView"
-                android:layout_width="240dp"
-                android:layout_height="240dp"
-                android:layout_gravity="center"
-                android:layout_margin="20dp"
-                app:selector="@drawable/wheel" />
+            <FrameLayout
+                android:id="@+id/colorPickerViewFrame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.skydoves.colorpickerview.ColorPickerView
+                    android:id="@+id/colorPickerView"
+                    android:layout_width="240dp"
+                    android:layout_height="240dp"
+                    android:layout_gravity="center"
+                    android:layout_margin="20dp"
+                    app:selector="@drawable/wheel" />
+
+            </FrameLayout>
+
+            <com.skydoves.colorpickerview.AlphaTileView
+                android:id="@+id/alphaTileView"
+                android:layout_width="35dp"
+                android:layout_height="25dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_gravity="end"
+                android:background="@android:color/white"
+                android:orientation="horizontal"
+                app:tileSize="20" />
 
         </FrameLayout>
+
 
         <FrameLayout
             android:id="@+id/alphaSlideBarFrame"
@@ -48,10 +68,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
-                app:radius_AlphaSlideBar="12dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="15dp"
                 android:layout_marginBottom="10dp"
+                app:radius_AlphaSlideBar="12dp"
                 app:selector_AlphaSlideBar="@drawable/wheel" />
         </FrameLayout>
 
@@ -73,9 +93,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="10dp"
-                app:radius_BrightnessSlider="12dp"
                 android:layout_marginRight="15dp"
                 android:layout_marginBottom="10dp"
+                app:radius_BrightnessSlider="12dp"
                 app:selector_BrightnessSlider="@drawable/wheel" />
         </FrameLayout>
 
