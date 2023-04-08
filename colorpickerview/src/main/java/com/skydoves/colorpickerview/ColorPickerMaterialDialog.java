@@ -97,6 +97,10 @@ public class ColorPickerMaterialDialog extends AlertDialog {
             return colorPickerView;
         }
 
+        public DialogColorpickerColorpickerviewSkydovesBinding getDialogBinding() {
+            return dialogBinding;
+        }
+
         /**
          * sets {@link ColorPickerView} manually.
          *
