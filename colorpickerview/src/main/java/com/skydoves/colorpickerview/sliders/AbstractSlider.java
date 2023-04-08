@@ -23,7 +23,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -32,6 +35,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DimenRes;
@@ -39,332 +43,360 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.FloatRange;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+
 import com.skydoves.colorpickerview.ActionMode;
 import com.skydoves.colorpickerview.ColorPickerView;
 
-/** AbstractSlider is the abstract class for implementing sliders. */
+/**
+ * AbstractSlider is the abstract class for implementing sliders.
+ */
 @SuppressWarnings("unused")
 abstract class AbstractSlider extends FrameLayout {
 
-  public ColorPickerView colorPickerView;
-  protected Paint colorPaint;
-  protected Paint borderPaint;
-  protected float selectorPosition = 1.0f;
-  protected int selectedX = 0;
-  protected Drawable selectorDrawable;
-  protected int borderSize = 2;
-  protected int borderColor = Color.BLACK;
-  protected int color = Color.WHITE;
-  protected ImageView selector;
-  protected String preferenceName;
+    public ColorPickerView colorPickerView;
+    protected Paint colorPaint;
+    protected Paint borderPaint;
+    protected float selectorPosition = 1.0f;
+    protected int selectedX = 0;
+    protected Drawable selectorDrawable;
+    protected int borderSize = 2;
+    protected int borderColor = Color.BLACK;
+    protected int color = Color.WHITE;
+    protected ImageView selector;
+    protected String preferenceName;
+    private int radius;
+    protected final RectF rectF = new RectF();
+    private GradientDrawable bgDrawable = new GradientDrawable();
 
-  public AbstractSlider(Context context) {
-    super(context);
-    onCreate();
-  }
-
-  @Override
-  public void setEnabled(boolean enabled) {
-    super.setEnabled(enabled);
-    selector.setVisibility(enabled ? VISIBLE : INVISIBLE);
-    this.setClickable(enabled);
-  }
-
-  public AbstractSlider(Context context, AttributeSet attrs) {
-    super(context, attrs);
-    getAttrs(attrs);
-    onCreate();
-  }
-
-  public AbstractSlider(Context context, AttributeSet attrs, int defStyleAttr) {
-    super(context, attrs, defStyleAttr);
-    getAttrs(attrs);
-    onCreate();
-  }
-
-  @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-  public AbstractSlider(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-    super(context, attrs, defStyleAttr, defStyleRes);
-    getAttrs(attrs);
-    onCreate();
-  }
-
-  /** gets attribute sets style from layout */
-  protected abstract void getAttrs(AttributeSet attrs);
-
-  /** update paint color whenever the triggered colors are changed. */
-  protected abstract void updatePaint(Paint colorPaint);
-
-  /**
-   * assembles about the selected color.
-   *
-   * @return assembled color.
-   */
-  public abstract @ColorInt int assembleColor();
-
-  private void onCreate() {
-    this.colorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    this.borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    this.borderPaint.setStyle(Paint.Style.STROKE);
-    this.borderPaint.setStrokeWidth(borderSize);
-    this.borderPaint.setColor(borderColor);
-    this.setBackgroundColor(Color.WHITE);
-
-    selector = new ImageView(getContext());
-    if (selectorDrawable != null) {
-      setSelectorDrawable(selectorDrawable);
+    public AbstractSlider(Context context) {
+        super(context);
+        onCreate();
     }
 
-    initializeSelector();
-  }
-
-  @Override
-  protected void onDraw(Canvas canvas) {
-    super.onDraw(canvas);
-    float width = getMeasuredWidth();
-    float height = getMeasuredHeight();
-    canvas.drawRect(0, 0, width, height, colorPaint);
-    canvas.drawRect(0, 0, width, height, borderPaint);
-  }
-
-  /** called by {@link ColorPickerView} whenever {@link ColorPickerView} is triggered. */
-  public void notifyColor() {
-    color = colorPickerView.getPureColor();
-    updatePaint(colorPaint);
-    invalidate();
-  }
-
-  @SuppressLint("ClickableViewAccessibility")
-  @Override
-  public boolean onTouchEvent(MotionEvent event) {
-    if (!this.isEnabled()) {
-      return false;
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        selector.setVisibility(enabled ? VISIBLE : INVISIBLE);
+        this.setClickable(enabled);
     }
 
-    if (colorPickerView != null) {
-      switch (event.getActionMasked()) {
-        case MotionEvent.ACTION_UP:
-        case MotionEvent.ACTION_DOWN:
-        case MotionEvent.ACTION_MOVE:
-          selector.setPressed(true);
-          onTouchReceived(event);
-          return true;
-        default:
-          selector.setPressed(false);
-          return false;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  private void onTouchReceived(MotionEvent event) {
-    float eventX = event.getX();
-    float left = selector.getMeasuredWidth();
-    float right = getMeasuredWidth() - selector.getMeasuredWidth();
-    if (eventX < left) eventX = left;
-    if (eventX > right) eventX = right;
-    selectorPosition = (eventX - left) / (right - left);
-    if (selectorPosition > 1.0f) selectorPosition = 1.0f;
-
-    Point snapPoint = new Point((int) event.getX(), (int) event.getY());
-    selectedX = (int) getBoundaryX(snapPoint.x);
-    selector.setX(selectedX);
-    if (colorPickerView.getActionMode() == ActionMode.LAST) {
-      if (event.getAction() == MotionEvent.ACTION_UP) {
-        colorPickerView.fireColorListener(assembleColor(), true);
-      }
-    } else {
-      colorPickerView.fireColorListener(assembleColor(), true);
+    public AbstractSlider(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        getAttrs(attrs);
+        onCreate();
     }
 
-    if (colorPickerView.getFlagView() != null) {
-      colorPickerView.getFlagView().receiveOnTouchEvent(event);
+    public AbstractSlider(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        getAttrs(attrs);
+        onCreate();
     }
 
-    int maxPos = getMeasuredWidth() - selector.getMeasuredWidth();
-    if (selector.getX() >= maxPos) selector.setX(maxPos);
-    if (selector.getX() <= 0) selector.setX(0);
-  }
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public AbstractSlider(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        getAttrs(attrs);
+        onCreate();
+    }
 
-  public void updateSelectorX(int x) {
-    float left = selector.getMeasuredWidth();
-    float right = getMeasuredWidth() - selector.getMeasuredWidth();
-    selectorPosition = (x - left) / (right - left);
-    if (selectorPosition > 1.0f) selectorPosition = 1.0f;
-    selectedX = (int) getBoundaryX(x);
-    selector.setX(selectedX);
-    colorPickerView.fireColorListener(assembleColor(), false);
-  }
+    /**
+     * gets attribute sets style from layout
+     */
+    protected abstract void getAttrs(AttributeSet attrs);
 
-  public void setSelectorPosition(@FloatRange(from = 0.0, to = 1.0) float selectorPosition) {
-    this.selectorPosition = Math.min(selectorPosition, 1.0f);
-    float x = (getMeasuredWidth() * selectorPosition) - getSelectorSize() - getBorderHalfSize();
-    selectedX = (int) getBoundaryX(x);
-    selector.setX(selectedX);
-  }
+    /**
+     * update paint color whenever the triggered colors are changed.
+     */
+    protected abstract void updatePaint(Paint colorPaint);
 
-  public void setSelectorByHalfSelectorPosition(
-      @FloatRange(from = 0.0, to = 1.0) float selectorPosition) {
-    this.selectorPosition = Math.min(selectorPosition, 1.0f);
-    float x =
-        (getMeasuredWidth() * selectorPosition) - (getSelectorSize() * 0.5f) - getBorderHalfSize();
-    selectedX = (int) getBoundaryX(x);
-    selector.setX(selectedX);
-  }
+    /**
+     * assembles about the selected color.
+     *
+     * @return assembled color.
+     */
+    public abstract @ColorInt int assembleColor();
 
-  private float getBoundaryX(float x) {
-    int maxPos = getMeasuredWidth() - selector.getMeasuredWidth();
-    if (x >= maxPos) return maxPos;
-    if (x <= getSelectorSize()) return 0;
-    return x - getSelectorSize();
-  }
+    private void onCreate() {
+        this.colorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.borderPaint.setStyle(Paint.Style.STROKE);
+        this.borderPaint.setStrokeWidth(borderSize);
+        this.borderPaint.setColor(borderColor);
+        bgDrawable.setCornerRadius(radius);
+        bgDrawable.setColor(Color.WHITE);
+        this.setBackgroundDrawable(bgDrawable);
 
-  protected int getSelectorSize() {
-    return (int) (selector.getMeasuredWidth());
-  }
+        selector = new ImageView(getContext());
+        if (selectorDrawable != null) {
+            setSelectorDrawable(selectorDrawable);
+        }
 
-  protected int getBorderHalfSize() {
-    return (int) (borderSize * 0.5f);
-  }
+        initializeSelector();
+    }
 
-  private void initializeSelector() {
-    getViewTreeObserver()
-        .addOnGlobalLayoutListener(
-            new ViewTreeObserver.OnGlobalLayoutListener() {
-              @Override
-              public void onGlobalLayout() {
-                if (Build.VERSION.SDK_INT < 16) {
-                  getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                } else {
-                  getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
-                onInflateFinished();
-              }
-            });
-  }
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        float width = getMeasuredWidth();
+        float height = getMeasuredHeight();
+        rectF.set(1, 1, width - 1, height - 1);
+        canvas.drawRoundRect(rectF, radius, radius, colorPaint);
+        canvas.drawRoundRect(rectF, radius, radius, borderPaint);
+    }
 
-  /**
-   * sets a drawable of the selector.
-   *
-   * @param drawable drawable of the selector.
-   */
-  public void setSelectorDrawable(Drawable drawable) {
-    removeView(selector);
-    this.selectorDrawable = drawable;
-    this.selector.setImageDrawable(drawable);
-    FrameLayout.LayoutParams thumbParams =
-        new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-    thumbParams.gravity = Gravity.CENTER_VERTICAL;
-    addView(selector, thumbParams);
-  }
+    /**
+     * called by {@link ColorPickerView} whenever {@link ColorPickerView} is triggered.
+     */
+    public void notifyColor() {
+        color = colorPickerView.getPureColor();
+        updatePaint(colorPaint);
+        invalidate();
+    }
 
-  /**
-   * sets a drawable resource of the selector.
-   *
-   * @param resource a drawable resource of the selector.
-   */
-  public void setSelectorDrawableRes(@DrawableRes int resource) {
-    Drawable drawable = ResourcesCompat.getDrawable(getContext().getResources(), resource, null);
-    setSelectorDrawable(drawable);
-  }
+    public void setRadius(int radius) {
+        this.radius = radius;
+        if (bgDrawable != null) {
+            bgDrawable.setCornerRadius(radius);
+        }
+    }
 
-  /**
-   * sets a color of the slider border.
-   *
-   * @param color color of the slider border.
-   */
-  public void setBorderColor(@ColorInt int color) {
-    this.borderColor = color;
-    this.borderPaint.setColor(color);
-    invalidate();
-  }
+    public int getRadius() {
+        return radius;
+    }
 
-  /**
-   * sets a color resource of the slider border.
-   *
-   * @param resource color resource of the slider border.
-   */
-  public void setBorderColorRes(@ColorRes int resource) {
-    int color = ContextCompat.getColor(getContext(), resource);
-    setBorderColor(color);
-  }
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (!this.isEnabled()) {
+            return false;
+        }
 
-  /**
-   * sets a size of the slide border.
-   *
-   * @param borderSize ize of the slide border.
-   */
-  public void setBorderSize(int borderSize) {
-    this.borderSize = borderSize;
-    this.borderPaint.setStrokeWidth(borderSize);
-    invalidate();
-  }
+        if (colorPickerView != null) {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_MOVE:
+                    selector.setPressed(true);
+                    onTouchReceived(event);
+                    return true;
+                default:
+                    selector.setPressed(false);
+                    return false;
+            }
+        } else {
+            return false;
+        }
+    }
 
-  /**
-   * sets a size of the slide border using dimension resource.
-   *
-   * @param resource a size of the slide border.
-   */
-  public void setBorderSizeRes(@DimenRes int resource) {
-    int borderSize = (int) getContext().getResources().getDimension(resource);
-    setBorderSize(borderSize);
-  }
+    private void onTouchReceived(MotionEvent event) {
+        float eventX = event.getX();
+        float left = selector.getMeasuredWidth();
+        float right = getMeasuredWidth() - selector.getMeasuredWidth();
+        if (eventX < left) eventX = left;
+        if (eventX > right) eventX = right;
+        selectorPosition = (eventX - left) / (right - left);
+        if (selectorPosition > 1.0f) selectorPosition = 1.0f;
 
-  /** called when the inflating finished. */
-  public abstract void onInflateFinished();
+        Point snapPoint = new Point((int) event.getX(), (int) event.getY());
+        selectedX = (int) getBoundaryX(snapPoint.x);
+        selector.setX(selectedX);
+        if (colorPickerView.getActionMode() == ActionMode.LAST) {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                colorPickerView.fireColorListener(assembleColor(), true);
+            }
+        } else {
+            colorPickerView.fireColorListener(assembleColor(), true);
+        }
 
-  /**
-   * gets assembled color
-   *
-   * @return color
-   */
-  public int getColor() {
-    return color;
-  }
+        if (colorPickerView.getFlagView() != null) {
+            colorPickerView.getFlagView().receiveOnTouchEvent(event);
+        }
 
-  /**
-   * attaches {@link ColorPickerView} to slider.
-   *
-   * @param colorPickerView {@link ColorPickerView}.
-   */
-  public void attachColorPickerView(ColorPickerView colorPickerView) {
-    this.colorPickerView = colorPickerView;
-  }
+        int maxPos = getMeasuredWidth() - selector.getMeasuredWidth();
+        if (selector.getX() >= maxPos) selector.setX(maxPos);
+        if (selector.getX() <= 0) selector.setX(0);
+    }
 
-  /**
-   * gets selector's position ratio.
-   *
-   * @return selector's position ratio.
-   */
-  protected float getSelectorPosition() {
-    return this.selectorPosition;
-  }
+    public void updateSelectorX(int x) {
+        float left = selector.getMeasuredWidth();
+        float right = getMeasuredWidth() - selector.getMeasuredWidth();
+        selectorPosition = (x - left) / (right - left);
+        if (selectorPosition > 1.0f) selectorPosition = 1.0f;
+        selectedX = (int) getBoundaryX(x);
+        selector.setX(selectedX);
+        colorPickerView.fireColorListener(assembleColor(), false);
+    }
 
-  /**
-   * gets selected x coordinate.
-   *
-   * @return selected x coordinate.
-   */
-  public int getSelectedX() {
-    return this.selectedX;
-  }
+    public void setSelectorPosition(@FloatRange(from = 0.0, to = 1.0) float selectorPosition) {
+        this.selectorPosition = Math.min(selectorPosition, 1.0f);
+        float x = (getMeasuredWidth() * selectorPosition) - getSelectorSize() - getBorderHalfSize();
+        selectedX = (int) getBoundaryX(x);
+        selector.setX(selectedX);
+    }
 
-  /**
-   * gets the preference name.
-   *
-   * @return preference name.
-   */
-  public String getPreferenceName() {
-    return preferenceName;
-  }
+    public void setSelectorByHalfSelectorPosition(
+            @FloatRange(from = 0.0, to = 1.0) float selectorPosition) {
+        this.selectorPosition = Math.min(selectorPosition, 1.0f);
+        float x =
+                (getMeasuredWidth() * selectorPosition) - (getSelectorSize() * 0.5f) - getBorderHalfSize();
+        selectedX = (int) getBoundaryX(x);
+        selector.setX(selectedX);
+    }
 
-  /**
-   * sets the preference name.
-   *
-   * @param preferenceName preference name.
-   */
-  public void setPreferenceName(String preferenceName) {
-    this.preferenceName = preferenceName;
-  }
+    private float getBoundaryX(float x) {
+        int maxPos = getMeasuredWidth() - selector.getMeasuredWidth();
+        if (x >= maxPos) return maxPos;
+        if (x <= getSelectorSize()) return 0;
+        return x - getSelectorSize();
+    }
+
+    protected int getSelectorSize() {
+        return (int) (selector.getMeasuredWidth());
+    }
+
+    protected int getBorderHalfSize() {
+        return (int) (borderSize * 0.5f);
+    }
+
+    private void initializeSelector() {
+        getViewTreeObserver()
+                .addOnGlobalLayoutListener(
+                        new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                if (Build.VERSION.SDK_INT < 16) {
+                                    getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                                } else {
+                                    getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                }
+                                onInflateFinished();
+                            }
+                        });
+    }
+
+    /**
+     * sets a drawable of the selector.
+     *
+     * @param drawable drawable of the selector.
+     */
+    public void setSelectorDrawable(Drawable drawable) {
+        removeView(selector);
+        this.selectorDrawable = drawable;
+        this.selector.setImageDrawable(drawable);
+        FrameLayout.LayoutParams thumbParams =
+                new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        thumbParams.gravity = Gravity.CENTER_VERTICAL;
+        addView(selector, thumbParams);
+    }
+
+    /**
+     * sets a drawable resource of the selector.
+     *
+     * @param resource a drawable resource of the selector.
+     */
+    public void setSelectorDrawableRes(@DrawableRes int resource) {
+        Drawable drawable = ResourcesCompat.getDrawable(getContext().getResources(), resource, null);
+        setSelectorDrawable(drawable);
+    }
+
+    /**
+     * sets a color of the slider border.
+     *
+     * @param color color of the slider border.
+     */
+    public void setBorderColor(@ColorInt int color) {
+        this.borderColor = color;
+        this.borderPaint.setColor(color);
+        invalidate();
+    }
+
+    /**
+     * sets a color resource of the slider border.
+     *
+     * @param resource color resource of the slider border.
+     */
+    public void setBorderColorRes(@ColorRes int resource) {
+        int color = ContextCompat.getColor(getContext(), resource);
+        setBorderColor(color);
+    }
+
+    /**
+     * sets a size of the slide border.
+     *
+     * @param borderSize ize of the slide border.
+     */
+    public void setBorderSize(int borderSize) {
+        this.borderSize = borderSize;
+        this.borderPaint.setStrokeWidth(borderSize);
+        invalidate();
+    }
+
+    /**
+     * sets a size of the slide border using dimension resource.
+     *
+     * @param resource a size of the slide border.
+     */
+    public void setBorderSizeRes(@DimenRes int resource) {
+        int borderSize = (int) getContext().getResources().getDimension(resource);
+        setBorderSize(borderSize);
+    }
+
+    /**
+     * called when the inflating finished.
+     */
+    public abstract void onInflateFinished();
+
+    /**
+     * gets assembled color
+     *
+     * @return color
+     */
+    public int getColor() {
+        return color;
+    }
+
+    /**
+     * attaches {@link ColorPickerView} to slider.
+     *
+     * @param colorPickerView {@link ColorPickerView}.
+     */
+    public void attachColorPickerView(ColorPickerView colorPickerView) {
+        this.colorPickerView = colorPickerView;
+    }
+
+    /**
+     * gets selector's position ratio.
+     *
+     * @return selector's position ratio.
+     */
+    protected float getSelectorPosition() {
+        return this.selectorPosition;
+    }
+
+    /**
+     * gets selected x coordinate.
+     *
+     * @return selected x coordinate.
+     */
+    public int getSelectedX() {
+        return this.selectedX;
+    }
+
+    /**
+     * gets the preference name.
+     *
+     * @return preference name.
+     */
+    public String getPreferenceName() {
+        return preferenceName;
+    }
+
+    /**
+     * sets the preference name.
+     *
+     * @param preferenceName preference name.
+     */
+    public void setPreferenceName(String preferenceName) {
+        this.preferenceName = preferenceName;
+    }
 }

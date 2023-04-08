@@ -71,6 +71,7 @@ public class BrightnessSlideBar extends AbstractSlider {
         borderSize =
             a.getInt(R.styleable.BrightnessSlideBar_borderSize_BrightnessSlider, borderSize);
       }
+      setRadius(a.getDimensionPixelSize(R.styleable.BrightnessSlideBar_radius_BrightnessSlider, 0));
     } finally {
       a.recycle();
     }

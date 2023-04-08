@@ -80,6 +80,10 @@ public class AlphaTileDrawable extends Drawable {
     canvas.drawRect(rect, bitmapPaint);
   }
 
+  public Paint getPaint() {
+    return paint;
+  }
+
   @Override
   public void draw(@NonNull Canvas canvas) {
     canvas.drawPaint(paint);
