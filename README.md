@@ -19,7 +19,6 @@
 </p>
 
 ## Including in your project 
-[![](https://jitpack.io/v/g19980115/ColorPickerView.svg)](https://jitpack.io/#g19980115/ColorPickerView)
 
 ### Gradle 
 Add below codes to your **root** `build.gradle` file (not your module build.gradle file).
@@ -30,10 +29,12 @@ allprojects {
     }
 }
 ```
-And add a dependency code to your **module**'s `build.gradle` file. 
+And add a dependency code to your **module**'s `build.gradle` file.
+
+[![](https://jitpack.io/v/g19980115/ColorPickerView.svg)](https://jitpack.io/#g19980115/ColorPickerView)
 ```gradle
 dependencies {
-    implementation 'com.github.g19980115:ColorPickerView:2.2.9'
+    implementation 'com.github.g19980115:ColorPickerView:2.3.0'
 }
 ```
 
