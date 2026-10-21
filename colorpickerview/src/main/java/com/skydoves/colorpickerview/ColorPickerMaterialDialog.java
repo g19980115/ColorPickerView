@@ -91,7 +91,7 @@ public class ColorPickerMaterialDialog extends AlertDialog {
                             if (showTileView) {
                                 dialogBinding.alphaTileView.setPaintColor(envelope.getColor());
                             }
-                            if (showHexColorEditTextView) {
+                            if (showHexColorEditTextView && fromUser) {
                                 isProgrammaticChange = true;
                                 dialogBinding.etColor.setText(envelope.getHexCode());
                                 isProgrammaticChange = false;
