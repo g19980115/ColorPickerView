@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 new ColorPickerMaterialDialog.Builder(this)
                         .setTitle("ColorPicker Dialog")
                         .setPreferenceName("Test")
+                        .showHexColorEditView(false)
                         .setPositiveButton(
                                 getString(R.string.confirm),
                                 (ColorEnvelopeListener) (envelope, fromUser) -> setLayoutColor(envelope))

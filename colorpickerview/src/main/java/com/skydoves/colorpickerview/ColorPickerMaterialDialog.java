@@ -19,7 +19,10 @@ package com.skydoves.colorpickerview;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -61,6 +64,8 @@ public class ColorPickerMaterialDialog extends AlertDialog {
         private int bottomSpace = SizeUtils.dp2Px(getContext(), 10);
         private CharSequence brightnessTip;
         private boolean showTileView = true;
+        private boolean showHexColorEditTextView = true;
+        private boolean isProgrammaticChange = false;
 
         public Builder(Context context) {
             super(context);
@@ -85,6 +90,11 @@ public class ColorPickerMaterialDialog extends AlertDialog {
                         public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
                             if (showTileView) {
                                 dialogBinding.alphaTileView.setPaintColor(envelope.getColor());
+                            }
+                            if (showHexColorEditTextView) {
+                                isProgrammaticChange = true;
+                                dialogBinding.etColor.setText(envelope.getHexCode());
+                                isProgrammaticChange = false;
                             }
                             // no stubs
                         }
@@ -141,6 +151,11 @@ public class ColorPickerMaterialDialog extends AlertDialog {
 
         public Builder showTileView(boolean v) {
             this.showTileView = v;
+            return this;
+        }
+
+        public Builder showHexColorEditView(boolean show) {
+            this.showHexColorEditTextView = show;
             return this;
         }
 
@@ -275,6 +290,37 @@ public class ColorPickerMaterialDialog extends AlertDialog {
 
                 if (!showTileView) {
                     this.dialogBinding.alphaTileView.setVisibility(View.INVISIBLE);
+                }
+                if (!showHexColorEditTextView) {
+                    this.dialogBinding.etPrefix.setVisibility(View.INVISIBLE);
+                    this.dialogBinding.etColor.setVisibility(View.INVISIBLE);
+                } else {
+                    this.dialogBinding.etPrefix.setVisibility(View.VISIBLE);
+                    this.dialogBinding.etColor.setVisibility(View.VISIBLE);
+                    dialogBinding.etColor.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                            if (isProgrammaticChange) return;
+                            int length = s.length();
+                            if (length == 6 || length == 8) {
+                                try {
+                                    colorPickerView.selectByHsvColor(Color.parseColor("#" + s.toString()));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
                 }
             }
 
