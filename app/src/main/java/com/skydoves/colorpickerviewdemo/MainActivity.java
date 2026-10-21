@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -196,6 +197,15 @@ public class MainActivity extends AppCompatActivity {
                                 getString(R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss());
         builder.getColorPickerView().setFlagView(new CustomFlag(this));
         builder.show();
+        builder.getColorPickerView().postDelayed(() -> {
+            try {
+                String color = "#A0ffffff";
+                builder.getColorPickerView().selectByHsvColor(Color.parseColor(color));
+                builder.getDialogBinding().etColor.setText(color.replace("#",""));
+            } catch (Exception e) {
+                //throw new RuntimeException(e);
+            }
+        }, 100);
     }
 
     @Override

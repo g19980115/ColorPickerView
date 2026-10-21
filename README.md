@@ -34,7 +34,7 @@ And add a dependency code to your **module**'s `build.gradle` file.
 [![](https://jitpack.io/v/g19980115/ColorPickerView.svg)](https://jitpack.io/#g19980115/ColorPickerView)
 ```gradle
 dependencies {
-    implementation 'com.github.g19980115:ColorPickerView:2.3.1'
+    implementation 'com.github.g19980115:ColorPickerView:2.3.2'
 }
 ```
 
